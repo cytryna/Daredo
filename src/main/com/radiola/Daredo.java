@@ -14,6 +14,5 @@ public class Daredo {
         System.out.println("Scooby-Doo, wher are you ?");
         System.err.println("HelloWorld");
 
-
     }
 }
