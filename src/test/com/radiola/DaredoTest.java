@@ -54,11 +54,11 @@ public class DaredoTest {
     @Test
     public void test_generate_report() {
         //given
-        Document doc = new Document(dataTableModels);
+
         //when
-        doc.generateRaport("testReport.docx");
+        Document doc = new Document(dataTableModels);
+        doc.generateRaport("testReport.doc");
         //then
 
     }
-
 }

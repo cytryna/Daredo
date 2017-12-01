@@ -18,35 +18,58 @@ public class Document {
 
     private static Logger logger = LoggerFactory.getLogger(Document.class);
 
+    private static final String BOOLEAN_TRUE_VALUE = "X";
+    private static final String BOOLEAN_FALSE_VALUE = "";
+
     private FileOutputStream out;
     private XWPFDocument document;
-    private XWPFTable table;
+    private List<DataTableModel> modelList;
 
     public Document(List<DataTableModel> modelList) {
+        this.modelList = modelList;
+
         document = new XWPFDocument();
 
-        XWPFParagraph paragraph = document.createParagraph();
-        XWPFRun run = paragraph.createRun();
-        run.setText("hi");
+        addTOCToDocument();
 
-        table = document.createTable(1, 7);
-
-        modelList.forEach(this::asdf);
+        processDatabaseModel();
     }
 
-    private void asdf(DataTableModel tableModel) {
+    /**
+     * generate Table of Content
+     * to znaczy spsis tresci
+     */
+    private void addTOCToDocument() {
+        document.createTOC();
+    }
+
+    private void processDatabaseModel() {
+        modelList.forEach(this::processTableModel);
+    }
+
+    private void processTableModel(DataTableModel tableModel) {
+        XWPFParagraph nameParagraph = document.createParagraph();
+        nameParagraph.setStyle("Tier1Header");
+        XWPFRun run1 = nameParagraph.createRun();
+        run1.setText(tableModel.getName());
+
+        XWPFParagraph descParagraph = document.createParagraph();
+        XWPFRun run2 = descParagraph.createRun();
+        run2.setText(tableModel.getDescription());
+
+        XWPFTable table = document.createTable();
         addInfoRow(table.getRow(0));
-        tableModel.getColumnModel().forEach(this::zxcv);
+        tableModel.getColumnModel().forEach(this::processColumnModel);
     }
 
-    private void zxcv(DataColumnModel columnModel) {
+    private void processColumnModel(DataColumnModel columnModel) {
         XWPFTableRow tableRow = table.createRow();
         tableRow.getCell(0).setText(Integer.toString(1));
         tableRow.getCell(1).setText(columnModel.getName());
         tableRow.getCell(2).setText(columnModel.getDataType());
-        tableRow.getCell(3).setText(Boolean.toString(columnModel.isPrimaryKey()));
-        tableRow.getCell(4).setText(Boolean.toString(columnModel.isForeignKey()));
-        tableRow.getCell(5).setText(Boolean.toString(columnModel.isNullable()));
+        tableRow.getCell(3).setText(getBooleanValue(columnModel.isPrimaryKey()));
+        tableRow.getCell(4).setText(getBooleanValue(columnModel.isForeignKey()));
+        tableRow.getCell(5).setText(getBooleanValue(columnModel.isNullable()));
         tableRow.getCell(6).setText(columnModel.getDescription());
     }
 
@@ -60,6 +83,14 @@ public class Document {
         tableRow.addNewTableCell().setText("Opis");
     }
 
+    private String getBooleanValue(boolean value) {
+        if(value) {
+            return BOOLEAN_TRUE_VALUE;
+        } else {
+            return BOOLEAN_FALSE_VALUE;
+        }
+    }
+
     public void generateRaport(String directoryPath) {
         try{
             File file = new File(directoryPath);
@@ -71,5 +102,4 @@ public class Document {
             logger.error("Wrong path", e);
         }
     }
-
 }
