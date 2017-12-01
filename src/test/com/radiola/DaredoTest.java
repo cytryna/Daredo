@@ -2,10 +2,12 @@ package com.radiola;
 
 import com.radiola.data.model.DataColumnModel;
 import com.radiola.data.model.DataTableModel;
+import com.radiola.doc.model.DocumentModel;
 import com.radiola.msdoc.Document;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +19,7 @@ import static org.junit.Assert.*;
 public class DaredoTest {
 
     private List<DataTableModel> dataTableModels;
+    private DocumentModel docModel;
 
     @Before
     public void genereteList() {
@@ -51,13 +54,22 @@ public class DaredoTest {
         dataTableModels.add(tableModel1);
     }
 
+    @Before
+    public void generateDocumentModel() {
+        docModel = new DocumentModel();
+        docModel.setAuthor("beholder");
+        docModel.setCreationYear(2017);
+        docModel.setDocTitle("Database documentation");
+        docModel.setVersion("1.0");
+    }
+
     @Test
     public void test_generate_report() {
         //given
 
         //when
-        Document doc = new Document(dataTableModels);
-        doc.generateRaport("testReport.doc");
+        Document doc = new Document(docModel, dataTableModels);
+        doc.generateRaport("testReport.docx");
         //then
 
     }

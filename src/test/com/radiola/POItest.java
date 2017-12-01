@@ -1,5 +1,6 @@
 package com.radiola;
 
+import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.usermodel.*;
 import org.junit.Test;
 
@@ -14,7 +15,7 @@ public class POItest {
 
     @Test
     public void testDoc() throws IOException {
-        XWPFDocument document = new XWPFDocument();
+        XWPFDocument document = new XWPFDocument(OPCPackage.create("asdasd.doc"));
 
         //Write the Document in file system
         FileOutputStream out = new FileOutputStream(new File("table.docx"));

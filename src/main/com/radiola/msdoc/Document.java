@@ -2,6 +2,7 @@ package com.radiola.msdoc;
 
 import com.radiola.data.model.DataColumnModel;
 import com.radiola.data.model.DataTableModel;
+import com.radiola.doc.model.DocumentModel;
 import org.apache.poi.xwpf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +10,10 @@ import org.slf4j.LoggerFactory;
 import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.Date;
 import java.util.List;
+
+import static org.apache.commons.lang.StringUtils.EMPTY;
 
 /**
  * Created by aswiecicki on 01.12.17.
@@ -19,28 +23,38 @@ public class Document {
     private static Logger logger = LoggerFactory.getLogger(Document.class);
 
     private static final String BOOLEAN_TRUE_VALUE = "X";
-    private static final String BOOLEAN_FALSE_VALUE = "";
+    private static final String BOOLEAN_FALSE_VALUE = EMPTY;
+
+    private final String TITLE = "%Database documentation%";
+    private final Date CREATION_DATE = new Date(0);
+    private final String COMPANY_NAME = "%Company_name%";
 
     private FileOutputStream out;
     private XWPFDocument document;
+
+    private DocumentModel docModel;
     private List<DataTableModel> modelList;
 
-    public Document(List<DataTableModel> modelList) {
+    public Document(DocumentModel model, List<DataTableModel> modelList) {
+        this.docModel = model;
         this.modelList = modelList;
 
         document = new XWPFDocument();
 
+        createTitlePage();
         addTOCToDocument();
 
         processDatabaseModel();
     }
 
-    /**
-     * generate Table of Content
-     * to znaczy spsis tresci
-     */
+    private void createTitlePage() {
+        TitlePage titlePage = new TitlePage(document, docModel.getDocTitle(), docModel.getCreationYear(), docModel.getAuthor(), docModel.getVersion());
+        titlePage.generateTitlePage();
+    }
+
     private void addTOCToDocument() {
-        document.createTOC();
+        TOCPage tocPage = new TOCPage(document);
+        tocPage.generateTOC();
     }
 
     private void processDatabaseModel() {
@@ -49,7 +63,7 @@ public class Document {
 
     private void processTableModel(DataTableModel tableModel) {
         XWPFParagraph nameParagraph = document.createParagraph();
-        nameParagraph.setStyle("Tier1Header");
+        nameParagraph.setStyle("Heading 1");
         XWPFRun run1 = nameParagraph.createRun();
         run1.setText(tableModel.getName());
 
@@ -57,12 +71,15 @@ public class Document {
         XWPFRun run2 = descParagraph.createRun();
         run2.setText(tableModel.getDescription());
 
+
         XWPFTable table = document.createTable();
         addInfoRow(table.getRow(0));
-        tableModel.getColumnModel().forEach(this::processColumnModel);
+        for(DataColumnModel model : tableModel.getColumnModel()) {
+            processColumnModel(table, model);
+        }
     }
 
-    private void processColumnModel(DataColumnModel columnModel) {
+    private void processColumnModel(XWPFTable table, DataColumnModel columnModel) {
         XWPFTableRow tableRow = table.createRow();
         tableRow.getCell(0).setText(Integer.toString(1));
         tableRow.getCell(1).setText(columnModel.getName());
@@ -81,6 +98,7 @@ public class Document {
         tableRow.addNewTableCell().setText("FK");
         tableRow.addNewTableCell().setText("Null");
         tableRow.addNewTableCell().setText("Opis");
+        tableRow.getTableCells().stream().forEach(a -> a.setColor("c1fc00"));
     }
 
     private String getBooleanValue(boolean value) {
@@ -96,6 +114,8 @@ public class Document {
             File file = new File(directoryPath);
             out = new FileOutputStream(file);
             document.write(out);
+            out.flush();
+            out.close();
             Desktop.getDesktop().open(file);
             logger.info("File generated OK");
         } catch (java.io.IOException e) {
