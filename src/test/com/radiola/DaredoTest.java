@@ -33,7 +33,7 @@ public class DaredoTest {
         columnModel1.setPrimaryKey(true);
         columnModel1.setForeignKey(false);
         columnModel1.setNullable(true);
-        columnModel1.setDescription("Descrption1");
+        columnModel1.setDescription("Description1");
 
         DataColumnModel columnModel2 = new DataColumnModel();
         columnModel2.setName("ColumnName2");
@@ -41,7 +41,7 @@ public class DaredoTest {
         columnModel2.setPrimaryKey(false);
         columnModel2.setForeignKey(true);
         columnModel2.setNullable(true);
-        columnModel2.setDescription("Descrption2");
+        columnModel2.setDescription("Description2");
 
         columnModels.add(columnModel1);
         columnModels.add(columnModel2);
